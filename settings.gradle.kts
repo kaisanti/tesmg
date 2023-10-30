@@ -45,6 +45,7 @@ if (System.getenv("CI") == null || System.getenv("CI_MODULE_GEN") == "true") {
     // Running in CI (GitHub Actions)
 
     val isMultisrc = System.getenv("CI_MULTISRC") == "true"
+    val chunkSize = System.getenv("CI_CHUNK_SIZE").toInt()
     val chunk = System.getenv("CI_CHUNK_NUM").toInt()
 
     if (isMultisrc) {
