@@ -4,23 +4,43 @@ on:
   push:
     branches:
       - master
-    tags:
-      - 'v*'
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/issue_moderator.yml'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 
 env:
-  CI_CHUNK_SIZE: 65 
-  
+  CI_CHUNK_SIZE: 65
+
 jobs:
-  test:
-    name: Run Unit Tests
+  prepare:
+    name: Prepare job
     runs-on: ubuntu-latest
+    outputs:
+      individualMatrix: ${{ steps.generate-matrices.outputs.individualMatrix }}
+      multisrcMatrix: ${{ steps.generate-matrices.outputs.multisrcMatrix }}
+    env:
+      CI_MODULE_GEN: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Setup JDK
-        uses: actions/setup-java@v1
+      - name: Clone repo
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          java-version: 1.8
+          java-version: 11
+          distribution: adopt
+
+      - name: Generate multisrc sources
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: :multisrc:generateExtensions 
       - name: Run Tests
         run: bash ./gradlew test --stacktrace  
   apk:
