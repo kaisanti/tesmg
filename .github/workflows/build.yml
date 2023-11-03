@@ -7,6 +7,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  CI_CHUNK_SIZE: 65 
+  
 jobs:
   test:
     name: Run Unit Tests
